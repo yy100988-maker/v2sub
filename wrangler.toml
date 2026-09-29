@@ -1,10 +1,15 @@
-name = "edgetunnel-obfuscated"
+name = "v2sub"
 main = "_worker.js"
 compatibility_date = "2026-07-28"
 keep_vars = true
 
+[vars]
+UUID = "ae4ac58b-2cf9-4054-94eb-2f056244b4f2"
+
 [[kv_namespaces]]
 binding = "KV"
-id = "eea4d5a1677a4036a2dbdc1c392a1706"
+id = "b7af35488be54e348bd0ac22f2577605"
 
-
+[[routes]]
+pattern = "v2sub.ccwu.cc"
+custom_domain = true
