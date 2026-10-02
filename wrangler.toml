@@ -5,6 +5,8 @@ keep_vars = true
 
 [vars]
 UUID = "ae4ac58b-2cf9-4054-94eb-2f056244b4f2"
+# 让 Worker 先用 DoH 把目标域名解析成 A/AAAA 再拨号（否则域名型目标无法代理）
+PRELOAD_RACE_DIAL = "true"
 
 [[kv_namespaces]]
 binding = "KV"
