@@ -7,8 +7,6 @@ keep_vars = true
 UUID = "ae4ac58b-2cf9-4054-94eb-2f056244b4f2"
 # 注意：keep_vars = true 时删掉变量不会生效，必须显式赋值
 PRELOAD_RACE_DIAL = "false"
-# 临时：开启 Worker 内部调试日志（wrangler tail 可见），排查完请删除
-DEBUG = "true"
 
 [[kv_namespaces]]
 binding = "KV"
