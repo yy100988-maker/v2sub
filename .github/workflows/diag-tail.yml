@@ -1,6 +1,8 @@
 name: DIAG Tail
+
 on:
   workflow_dispatch:
+
 jobs:
   diag:
     runs-on: ubuntu-latest
@@ -9,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "latest"
-      - name: Start wrangler tail (background)
+      - name: Start wrangler tail
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -18,17 +20,17 @@ jobs:
           echo $! > /tmp/tail.pid
           sleep 30
           echo '--- tail boot ---'
-          head -c 2000 /tmp/tail.log
-      - name: Probe worker with VLESS
+          head -c 1500 /tmp/tail.log
+      - name: Probe worker
         run: |
           cat > /tmp/probe.js <<'PROBE_EOF'
-const tls=require('tls'),crypto=require('crypto');
-const HOST='v2sub.ccwu.cc',UUID='ae4ac58b-2cf9-4054-94eb-2f056244b4f2';
-function fr(p){const l=p.length;let h;if(l<126){h=Buffer.alloc(6);h[0]=0x82;h[1]=0x80|l}else{h=Buffer.alloc(8);h[0]=0x82;h[1]=0x80|126;h.writeUInt16BE(l,2)}const m=crypto.randomBytes(4);m.copy(h,h.length-4);const o=Buffer.alloc(l);for(let i=0;i<l;i++)o[i]=p[i]^m[i%4];return Buffer.concat([h,o])}
-function hd(t,port,at){const id=Buffer.from(UUID.replace(/-/g,''),'hex');const a=at===1?Buffer.from(t.split('.').map(Number)):Buffer.from(t,'utf8');const b=Buffer.alloc(1+16+1+1+2+1+a.length);let o=0;b[o++]=0;id.copy(b,o);o+=16;b[o++]=0;b[o++]=1;b.writeUInt16BE(port,o);o+=2;b[o++]=at;a.copy(b,o);return b}
-function test(target,port,at){return new Promise(res=>{let st='tls',buf=Buffer.alloc(0),done=false,got='';const fin=n=>{if(done)return;done=true;try{s.destroy()}catch{}res(n+' | '+(got.slice(0,40).replace(/[\r\n]+/g,' ')||'no-data'))};const s=tls.connect({host:HOST,port:443,servername:HOST,rejectUnauthorized:false},()=>{st='ws';s.write('GET / HTTP/1.1\r\nHost: '+HOST+'\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n')});s.setTimeout(12000);s.on('data',d=>{buf=Buffer.concat([buf,d]);if(st==='ws'){const i=buf.indexOf('\r\n\r\n');if(i===-1)return;st='data';buf=buf.slice(i+4);s.write(fr(Buffer.concat([hd(target,port,at),Buffer.from('GET / HTTP/1.1\r\nHost: '+target+'\r\nConnection: close\r\n\r\n')])))}if(st!=='data')return;while(buf.length>=2){const op=buf[0]&0x0f;let len=buf[1]&0x7f,off=2;if(len===126){if(buf.length<4)break;len=buf.readUInt16BE(2);off=4}if(buf[1]&0x80)off+=4;if(buf.length<off+len)break;if(op===8){fin('CLOSED');return}if(op===1||op===2)got+=buf.slice(off,off+len).toString('utf8');buf=buf.slice(off+len);if(/HTTP\/1\.[01]/.test(got)){fin('OK');return}}});s.once('timeout',()=>fin('TIMEOUT'));s.once('error',e=>fin('ERR '+e.code))})}
-(async()=>{console.log('DOMAIN www.gstatic.com:80 ->',await test('www.gstatic.com',80,2));console.log('IP     1.1.1.1:80       ->',await test('1.1.1.1',80,1));})()
-PROBE_EOF
+          const tls=require('tls'),crypto=require('crypto');
+          const HOST='v2sub.ccwu.cc',UUID='ae4ac58b-2cf9-4054-94eb-2f056244b4f2';
+          function fr(p){const l=p.length;let h;if(l<126){h=Buffer.alloc(6);h[0]=0x82;h[1]=0x80|l}else{h=Buffer.alloc(8);h[0]=0x82;h[1]=0x80|126;h.writeUInt16BE(l,2)}const m=crypto.randomBytes(4);m.copy(h,h.length-4);const o=Buffer.alloc(l);for(let i=0;i<l;i++)o[i]=p[i]^m[i%4];return Buffer.concat([h,o])}
+          function hd(t,port,at){const id=Buffer.from(UUID.replace(/-/g,''),'hex');const a=at===1?Buffer.from(t.split('.').map(Number)):Buffer.from(t,'utf8');const b=Buffer.alloc(1+16+1+1+2+1+a.length);let o=0;b[o++]=0;id.copy(b,o);o+=16;b[o++]=0;b[o++]=1;b.writeUInt16BE(port,o);o+=2;b[o++]=at;a.copy(b,o);return b}
+          function test(target,port,at){return new Promise(res=>{let st='tls',buf=Buffer.alloc(0),done=false,got='';const fin=n=>{if(done)return;done=true;try{s.destroy()}catch{}res(n+' | '+(got.slice(0,40).replace(/[\r\n]+/g,' ')||'no-data'))};const s=tls.connect({host:HOST,port:443,servername:HOST,rejectUnauthorized:false},()=>{st='ws';s.write('GET / HTTP/1.1\r\nHost: '+HOST+'\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n')});s.setTimeout(12000);s.on('data',d=>{buf=Buffer.concat([buf,d]);if(st==='ws'){const i=buf.indexOf('\r\n\r\n');if(i===-1)return;st='data';buf=buf.slice(i+4);s.write(fr(Buffer.concat([hd(target,port,at),Buffer.from('GET / HTTP/1.1\r\nHost: '+target+'\r\nConnection: close\r\n\r\n')])))}if(st!=='data')return;while(buf.length>=2){const op=buf[0]&0x0f;let len=buf[1]&0x7f,off=2;if(len===126){if(buf.length<4)break;len=buf.readUInt16BE(2);off=4}if(buf[1]&0x80)off+=4;if(buf.length<off+len)break;if(op===8){fin('CLOSED');return}if(op===1||op===2)got+=buf.slice(off,off+len).toString('utf8');buf=buf.slice(off+len);if(/HTTP\/1\.[01]/.test(got)){fin('OK');return}}});s.once('timeout',()=>fin('TIMEOUT'));s.once('error',e=>fin('ERR '+e.code))})}
+          (async()=>{console.log('DOMAIN www.gstatic.com:80 ->',await test('www.gstatic.com',80,2));console.log('IP     1.1.1.1:80       ->',await test('1.1.1.1',80,1));})()
+          PROBE_EOF
           node /tmp/probe.js
       - name: Dump tail log
         if: always()
