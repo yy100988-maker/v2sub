@@ -34,9 +34,6 @@ jobs:
             "https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js"
           echo "Downloaded origin.js ($(wc -c < origin.js) bytes)"
 
-      - name: 🩹 Patch connection logic TEMP-DISABLED for A-B test
-        run: echo 'patch disabled'
-
       - name: 🔐 Obfuscate worker code
         run: |
           javascript-obfuscator origin.js --output _worker.js \
