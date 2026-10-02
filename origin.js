@@ -2445,7 +2445,7 @@ async function forwardataTCP(host, portNum, rawData, ws, respHeader, remoteConnW
 			log(`[TCP转发] 尝试直连到: ${host}:${portNum}`);
 			const 世代连接 = 开始TCP连接世代(remoteConnWrapper);
 			直连世代 = 世代连接.generation;
-			const initialSocket = await (async () => { throw new Error("[CFvpn patch] skip direct dial, use reverse proxy"); })();
+			const initialSocket = await connectDirect(host, portNum, rawData, true);
 			await 安装当前连接(initialSocket, 直连世代, 世代连接.downlinkDrain, async () => {
 				if (remoteConnWrapper.generation !== 直连世代 || remoteConnWrapper.socket !== initialSocket) return;
 				await connecttoPry();
