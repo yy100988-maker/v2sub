@@ -34,6 +34,9 @@ jobs:
             "https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js"
           echo "Downloaded origin.js ($(wc -c < origin.js) bytes)"
 
+      - name: 🩹 Patch connection logic to prefer reverse proxy
+        run: node patch.js
+
       - name: 🔐 Obfuscate worker code
         run: |
           javascript-obfuscator origin.js --output _worker.js \
