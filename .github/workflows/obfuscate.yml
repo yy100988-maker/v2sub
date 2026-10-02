@@ -34,7 +34,7 @@ jobs:
             "https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js"
           echo "Downloaded origin.js ($(wc -c < origin.js) bytes)"
 
-      - name: 🔐 Obfuscate worker code (TEMP: disabled to isolate obfuscator)
+      - name: 🔐 Obfuscate worker code TEMP-DISABLED to isolate obfuscator
         run: |
           cp origin.js _worker.js
           echo "Using UNOBFUSCATED origin.js as _worker.js ($(wc -c < _worker.js) bytes)"
